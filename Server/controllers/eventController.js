@@ -110,12 +110,15 @@ exports.rsvpEvent = async (req, res) => {
 
     await event.save();
 
-    res.status(200).json({ message: 'RSVP successful' });
+    // Respond with the number of attendees
+    const numberOfAttendees = event.attendees.length + event.guests.length;
+    res.status(200).json({ message: 'RSVP successful', numberOfAttendees });
   } catch (error) {
     console.error('Error RSVPing to event:', error);
     res.status(500).json({ error: 'Error RSVPing to event' });
   }
 };
+
 
 
 // Get all attendees for a specific event

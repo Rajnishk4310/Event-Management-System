@@ -13,6 +13,7 @@ const EventDetails = () => {
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [guestInfo, setGuestInfo] = useState({ name: "", email: "" });
+  const [isRegistered, setIsRegistered] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -20,18 +21,39 @@ const EventDetails = () => {
     }
   }, [dispatch, id]);
 
-  const handleRSVPClick = () => {
+  useEffect(() => {
+    if (event && isAuthenticated) {
+      const userId = 'mockUserId123'; // Replace with actual user ID from authentication context or state
+      setIsRegistered(event.guests.some(guest => guest.userId === userId));
+    }
+  }, [event, isAuthenticated, id]);
+
+  const handleRSVPClick = async () => {
     if (isAuthenticated) {
       // Logic to RSVP as a logged-in user
-      alert("RSVP submitted as logged-in user");
-      // Replace with actual user ID logic
-      const userId = "someUserId"; // You should get the user ID from your authentication state or context
-      dispatch(updateEvent({ id, action: "RSVP", userId }));
+      try {
+        const userId = 'mockUserId123'; // Replace with actual user ID
+        const response = await fetch(`http://localhost:5000/api/events/${id}/rsvp`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ userId }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          alert(`RSVP submitted as logged-in user. Total Attendees: ${data.numberOfAttendees}`);
+          setIsRegistered(true);
+        } else {
+          alert(data.error);
+        }
+      } catch (error) {
+        console.error('Error RSVPing to event:', error);
+      }
     } else {
       setShowLoginModal(true);
     }
   };
-  
 
   const handleGuestSubmit = () => {
     // Logic to RSVP as a guest
@@ -52,7 +74,7 @@ const EventDetails = () => {
     return <div>No event details available</div>;
   }
 
-  const { guests = [] } = event;
+  const { guests = [], numberOfAttendees } = event;
 
   return (
     <div className="container mx-auto p-4 bg-white shadow-md rounded-lg">
@@ -79,13 +101,19 @@ const EventDetails = () => {
       ) : (
         <p>No attendees registered yet.</p>
       )}
+      <p className="text-lg font-semibold mt-2">Total Attendees: {numberOfAttendees}</p>
 
       {/* RSVP Button */}
       <button
-        className="mt-6 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
+        className={`mt-6 px-4 py-2 rounded-md transition duration-300 ${
+          isRegistered
+            ? 'bg-gray-500 text-white cursor-not-allowed'
+            : 'bg-blue-500 text-white hover:bg-blue-600'
+        }`}
         onClick={handleRSVPClick}
+        disabled={isRegistered}
       >
-        Register to the Event
+        {isRegistered ? 'Already Registered' : 'Register to the Event'}
       </button>
 
       {/* Modal for Login or Guest */}
@@ -96,7 +124,7 @@ const EventDetails = () => {
               RSVP to {event.title}
             </h2>
             <p className="mb-4">
-              You must log in or register as a guest to RSVP.
+              You must log in or register as a guest to Register .
             </p>
 
             {/* Option to Log In */}

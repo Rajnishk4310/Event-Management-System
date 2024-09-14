@@ -29,7 +29,7 @@ const eventSchema = new Schema(
         ref: "User",
       },
     ],
-    guests: [{ name: String, email: String }], //  field for guests
+    guests: [{ name: String, email: String }], // field for guests
   },
   { timestamps: true }
 ); // This will add createdAt and updatedAt fields
