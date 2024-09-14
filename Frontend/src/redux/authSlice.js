@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import api from '../api/api'; // Adjust the path to where you placed the api.js file
 
 // Define initial state
 const initialState = {
@@ -14,9 +14,10 @@ export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async ({ email, password }, { rejectWithValue }) => {
     try {
-      const response = await axios.post('/api/auth/login', { email, password });
+      const response = await api.post('/api/login', { email, password });
       return response.data; // Assuming the response contains user info and token
     } catch (error) {
+      console.error('Login error:', error.response);
       return rejectWithValue(error.response.data);
     }
   }
@@ -27,9 +28,10 @@ export const logoutUser = createAsyncThunk(
   'auth/logoutUser',
   async (_, { rejectWithValue }) => {
     try {
-      await axios.post('/api/auth/logout');
+      await api.post('/api/logout'); // Adjust the endpoint if needed
       return; // No additional data needed for logout
     } catch (error) {
+      console.error('Logout error:', error.response);
       return rejectWithValue(error.response.data);
     }
   }

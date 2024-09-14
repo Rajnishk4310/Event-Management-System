@@ -37,7 +37,7 @@ const Header = () => {
               <Link to="/events" className="mr-4">Events</Link>
               <Link to="/createEvent" className="mr-4">Create Events</Link>
               <Link to="/users" className="mr-4">Users</Link>
-              <span className="mr-4">Welcome, {user?.name}</span>
+              {/* <span className="mr-4">Welcome, {user?.name}</span> */}
               <button onClick={handleLogout} className="mr-4">Logout</button>
             </>
           )}

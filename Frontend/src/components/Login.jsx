@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { loginUser } from '../redux/authSlice'; // Assuming loginUser is an async thunk
+import { loginUser } from '../redux/authSlice'; // Adjust the path if needed
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
@@ -18,6 +18,8 @@ const Login = () => {
 
     if (loginUser.fulfilled.match(resultAction)) {
       navigate('/events'); // Redirect to the events page after successful login
+    } else {
+      console.error('Login failed:', resultAction.payload);
     }
   };
 

@@ -1,15 +1,16 @@
+// EventDetails.js
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { fetchEventById } from "../redux/eventSlice";
+import { fetchEventById, updateEvent } from "../redux/eventSlice";
 import { Link } from "react-router-dom";
-import { selectIsAuthenticated } from "../redux/authSlice"; // Corrected import
+import { selectIsAuthenticated } from "../redux/authSlice";
 
 const EventDetails = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { event, status, error } = useSelector((state) => state.events);
-  const isAuthenticated = useSelector(selectIsAuthenticated); // Use the selector to check if the user is logged in
+  const isAuthenticated = useSelector(selectIsAuthenticated);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [guestInfo, setGuestInfo] = useState({ name: "", email: "" });
 
@@ -23,14 +24,19 @@ const EventDetails = () => {
     if (isAuthenticated) {
       // Logic to RSVP as a logged-in user
       alert("RSVP submitted as logged-in user");
+      // Replace with actual user ID logic
+      const userId = "someUserId"; // You should get the user ID from your authentication state or context
+      dispatch(updateEvent({ id, action: "RSVP", userId }));
     } else {
       setShowLoginModal(true);
     }
   };
+  
 
   const handleGuestSubmit = () => {
     // Logic to RSVP as a guest
     alert(`RSVP submitted for guest: ${guestInfo.name} (${guestInfo.email})`);
+    dispatch(updateEvent({ id, action: "RSVP", guest: guestInfo }));
     setShowLoginModal(false);
   };
 
@@ -129,14 +135,13 @@ const EventDetails = () => {
 
             {/* Submit Guest RSVP */}
             <button
-              className="bg-blue-500 text-white px-4 py-2 rounded-md w-full hover:bg-blue-600 transition duration-300"
+              className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300"
               onClick={handleGuestSubmit}
             >
               RSVP as Guest
             </button>
-
             <button
-              className="mt-4 bg-gray-400 text-white px-4 py-2 rounded-md w-full hover:bg-gray-500 transition duration-300"
+              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300 mt-4"
               onClick={() => setShowLoginModal(false)}
             >
               Cancel

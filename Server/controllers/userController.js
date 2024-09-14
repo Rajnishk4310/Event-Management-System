@@ -1,16 +1,17 @@
-const User = require('../models/User');
-const Event = require('../models/Event');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken'); // For token generation
+const User = require("../models/User");
+const Event = require("../models/Event");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken"); // For token generation
 
 // Register a new user
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, phoneNumber, address, password, confirmPassword } = req.body;
+    const { name, email, phoneNumber, address, password, confirmPassword } =
+      req.body;
 
     // Validate password match
     if (password !== confirmPassword) {
-      return res.status(400).json({ error: 'Passwords do not match' });
+      return res.status(400).json({ error: "Passwords do not match" });
     }
 
     // Hash the password
@@ -21,14 +22,14 @@ exports.registerUser = async (req, res) => {
       email,
       phoneNumber,
       address,
-      password: hashedPassword
+      password: hashedPassword,
     });
 
     await user.save();
     res.status(201).json(user);
   } catch (error) {
-    console.error('Error details:', error.message);
-    res.status(500).json({ error: error.message || 'Error registering user' });
+    console.error("Error details:", error.message);
+    res.status(500).json({ error: error.message || "Error registering user" });
   }
 };
 
@@ -40,45 +41,62 @@ exports.loginUser = async (req, res) => {
     // Find user by email
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ error: 'Invalid credentials' });
+      return res.status(400).json({ error: "Invalid credentials" });
     }
 
     // Generate token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
     res.json({ token });
   } catch (error) {
-    console.error('Error details:', error.message);
-    res.status(500).json({ error: error.message || 'Error logging in user' });
+    console.error("Error details:", error.message);
+    res.status(500).json({ error: error.message || "Error logging in user" });
   }
 };
+
+// logoutController.js (or any appropriate filename)
+exports.logout = async (req, res) => {
+  try {
+    // Handle logout logic here
+    // For example, clearing cookies or destroying sessions
+    res.status(200).send("Logged out successfully");
+  } catch (error) {
+    console.error("Error details:", error.message);
+    res.status(500).json({ error: error.message || "Error logging out user" });
+  }
+};
+
 
 // Get all users
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().populate('registeredEvents');
+    const users = await User.find().populate("registeredEvents");
     res.json(users);
   } catch (error) {
-    res.status(500).json({ error: 'Error fetching users' });
+    res.status(500).json({ error: "Error fetching users" });
   }
 };
 
 // Get a specific user by ID
 exports.getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).populate('registeredEvents');
+    const user = await User.findById(req.params.id).populate(
+      "registeredEvents"
+    );
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
     res.json(user);
   } catch (error) {
-    res.status(500).json({ error: 'Error fetching user' });
+    res.status(500).json({ error: "Error fetching user" });
   }
 };
 
@@ -92,11 +110,11 @@ exports.updateUser = async (req, res) => {
       { new: true }
     );
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
     res.json(user);
   } catch (error) {
-    res.status(500).json({ error: 'Error updating user' });
+    res.status(500).json({ error: "Error updating user" });
   }
 };
 
@@ -105,10 +123,10 @@ exports.deleteUser = async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
-    res.json({ message: 'User deleted successfully' });
+    res.json({ message: "User deleted successfully" });
   } catch (error) {
-    res.status(500).json({ error: 'Error deleting user' });
+    res.status(500).json({ error: "Error deleting user" });
   }
 };

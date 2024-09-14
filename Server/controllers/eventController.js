@@ -74,8 +74,9 @@ exports.rsvpEvent = async (req, res) => {
     const eventId = req.params.id;
     const { userId, name, email } = req.body;
 
+    console.log(`Received RSVP request for event ${eventId} with userId ${userId} and guest info ${name}, ${email}`);
+
     const event = await Event.findById(eventId);
-    
     if (!event) {
       return res.status(404).json({ error: 'Event not found' });
     }
@@ -88,12 +89,20 @@ exports.rsvpEvent = async (req, res) => {
         return res.status(404).json({ error: 'User not found' });
       }
 
+      if (event.attendees.includes(user._id)) {
+        return res.status(400).json({ error: 'User already RSVP\'d to this event' });
+      }
+
       event.attendees.push(user._id);
       user.registeredEvents.push(event._id);
 
       await user.save();
     } else if (name && email) {
       // Handle guest RSVP
+      if (event.guests.find(guest => guest.email === email)) {
+        return res.status(400).json({ error: 'Guest with this email already RSVP\'d' });
+      }
+
       event.guests.push({ name, email });
     } else {
       return res.status(400).json({ error: 'Guest information required' });
@@ -103,6 +112,7 @@ exports.rsvpEvent = async (req, res) => {
 
     res.status(200).json({ message: 'RSVP successful' });
   } catch (error) {
+    console.error('Error RSVPing to event:', error);
     res.status(500).json({ error: 'Error RSVPing to event' });
   }
 };
